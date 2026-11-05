@@ -8,13 +8,12 @@ async function getAuthHeader(user: User): Promise<Record<string, string>> {
 }
 
 export async function registerUser(user: User, displayName: string): Promise<{ id: string }> {
+  const authHeader = await getAuthHeader(user);
+  // The server takes the Firebase UID from the verified token, not the body.
   const response = await fetch(`${API_URL}/users/register`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      firebase_uid: user.uid,
-      display_name: displayName,
-    }),
+    headers: { 'Content-Type': 'application/json', ...authHeader },
+    body: JSON.stringify({ display_name: displayName }),
   });
 
   if (!response.ok) {
